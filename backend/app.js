@@ -1,37 +1,50 @@
-const express = require('express');
+const express = require("express");
 const app = express();
-const cors = require('cors');
-const fileUpload = require('express-fileupload');
-const path = require('path');
-
-// Middlewares
-app.use(cors());
-app.use(express.json());
-app.use(fileUpload());
-app.use(express.urlencoded({ extended: true }));
-
-// Serve frontend (optional, if you have index.html)
-app.use(express.static(path.join(__dirname, '../frontend')));
+const cors = require("cors");
+const path = require("path");
+const fs = require("fs");
+const multer = require("multer");
+const bodyParser = require("body-parser");
 
 // Routes
-const cookieExtractorRoute = require('./routes/cookieextractorroute');
-const messageRoute = require('./routes/messageRoute');
-const mediaRoute = require('./routes/mediaCommand');
-const helpRoute = require('./routes/helpCommand');
+const cookieExtractorRoute = require("./routes/cookieExtractorRoute");
 
-// Mount routes
-app.use('/api/extractor', cookieExtractorRoute);
-app.use('/api/send', messageRoute);
-app.use('/api/media', mediaRoute);
-app.use('/api/help', helpRoute);
+// Middleware
+app.use(cors());
+app.use(express.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, "..", "public")));
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-// Root redirect to frontend
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/index.html'));
+// File upload setup
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    const uploadPath = path.join(__dirname, "uploads");
+    if (!fs.existsSync(uploadPath)) fs.mkdirSync(uploadPath);
+    cb(null, uploadPath);
+  },
+  filename: function (req, file, cb) {
+    const uniqueName = Date.now() + "-" + file.originalname;
+    cb(null, uniqueName);
+  },
+});
+const upload = multer({ storage: storage });
+
+// Sample route (homepage)
+app.get("/", (req, res) => {
+  res.send("🚀 SBR-BOT backend is running!");
 });
 
-// ✅ Listen on dynamic port (Render requires this)
+// Mount extractor route
+app.use("/extractor", cookieExtractorRoute);
+
+// Upload endpoint (optional)
+app.post("/upload", upload.single("file"), (req, res) => {
+  res.json({ filename: req.file.filename, status: "Uploaded" });
+});
+
+// Start server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`🚀 SBR-BOT backend running on port ${PORT}`);
+  console.log(`✅ Server started on port ${PORT}`);
 });
