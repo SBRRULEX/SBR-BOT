@@ -1,0 +1,16 @@
+{
+  "name": "cookie-extractor",
+  "version": "1.0.0",
+  "description": "Secure Facebook Cookie Extractor with 2FA",
+  "main": "getcookies_secure.js",
+  "scripts": {
+    "start": "node getcookies_secure.js"
+  },
+  "dependencies": {
+    "puppeteer": "^21.3.3",
+    "readline-sync": "^1.4.10",
+    "fs-extra": "^11.2.0"
+  },
+  "author": "Rocky SBR",
+  "license": "MIT"
+}
