@@ -1,29 +1,47 @@
-// backend/core/groupMessenger.js
+const delay = require('./delay');
+const chalk = require('chalk');
 
-const sendMessage = require("../utils/sendMessage"); const { getCurrentTimestamp } = require("../utils/timestamp"); const { readFileSync } = require("fs"); const path = require("path");
+async function sendGroupMessage(page, groupUrl, messages, customDelay, stopCode, io) {
+  console.log(chalk.cyan(`[GROUP] Sending to group: ${groupUrl}`));
 
-async function sendGroupMessages(session, uidListPath, messageListPath, delay, stopCode, logCallback) { try { const uidList = readFileSync(uidListPath, "utf-8").split("\n").filter(Boolean); const messageList = readFileSync(messageListPath, "utf-8").split("\n").filter(Boolean);
+  for (let i = 0; i < messages.length; i++) {
+    const msg = messages[i];
 
-logCallback(`📤 Starting group message sending to ${uidList.length} groups...`);
+    // Stop code check
+    if (global.STOP_CODE === stopCode) {
+      console.log(chalk.red(`[GROUP] ❌ Stopped by user.`));
+      break;
+    }
 
-for (let i = 0; i < uidList.length; i++) {
-  const groupId = uidList[i];
-  const message = messageList[i % messageList.length];
+    try {
+      // Navigate to group chat
+      await page.goto(groupUrl, { waitUntil: 'networkidle2' });
 
-  const timestamp = getCurrentTimestamp();
-  await sendMessage(session, groupId, message);
+      // Wait for message input box
+      await page.waitForSelector('[contenteditable="true"]', { timeout: 10000 });
 
-  logCallback(`[${timestamp}] ✅ SBR SUCCESSFULLY SEND to group ${groupId}`);
+      // Type and send message
+      await page.type('[contenteditable="true"]', msg, { delay: 50 });
+      await page.keyboard.press('Enter');
 
-  if (global.SBR_STOP_CODE === stopCode) {
-    logCallback("⛔ Stop code matched. Halting group messages.");
-    break;
+      const timestamp = new Date().toLocaleTimeString();
+      const log = `[GROUP] ✅ ${timestamp} - SBR SUCCESSFULLY SEND to ${groupUrl}: ${msg}`;
+      console.log(chalk.green(log));
+
+      if (io) {
+        io.emit('log', log);
+      }
+
+      // Wait between messages
+      await delay(customDelay);
+
+    } catch (err) {
+      console.log(chalk.red(`[GROUP] ⚠️ Error sending message to group: ${err.message}`));
+      if (io) {
+        io.emit('log', `[ERROR] Could not send to group: ${groupUrl}`);
+      }
+    }
   }
-
-  await new Promise(res => setTimeout(res, delay));
 }
 
-logCallback("✅ Group message sending finished.");
-
-} catch (error) { logCallback("❌ Error sending group messages: " + error.message);
-
+module.exports = sendGroupMessage;
