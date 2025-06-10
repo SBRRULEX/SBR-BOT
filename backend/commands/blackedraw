@@ -1,0 +1,29 @@
+const fs = require('fs');
+const path = require('path');
+
+// Dummy local content folder (in final version, can be dynamic scraper or API)
+const contentDir = path.join(__dirname, '..', 'assets', 'blackedraw');
+
+module.exports = async function blackedrawCommand({ message, args, sendMedia }) {
+  const performer = args.join(' ').toLowerCase();
+
+  // Read all available files
+  const files = fs.readdirSync(contentDir).filter(f => f.endsWith('.mp4') || f.endsWith('.gif'));
+
+  // Filter based on performer if mentioned
+  let selectedFiles = files;
+  if (performer) {
+    selectedFiles = files.filter(file => file.toLowerCase().includes(performer));
+  }
+
+  if (selectedFiles.length === 0) {
+    return message.reply(`😕 Sorry, no clips found for "${performer}"`);
+  }
+
+  // Pick random file from selected
+  const randomFile = selectedFiles[Math.floor(Math.random() * selectedFiles.length)];
+  const fullPath = path.join(contentDir, randomFile);
+
+  // Send as media
+  await sendMedia(message, fullPath, '🔞 Here you go!');
+};
