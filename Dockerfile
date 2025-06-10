@@ -1,24 +1,16 @@
+# Use official Node.js image
 FROM node:18
 
-# Working directory set to /app
-WORKDIR /app
-
-# Copy backend files and install dependencies
-COPY backend ./backend
-WORKDIR /app/backend
-RUN npm install
-
-# Copy cookie-extractor files and install dependencies
-WORKDIR /app
-COPY cookie-extractor ./cookie-extractor
-WORKDIR /app/cookie-extractor
-RUN npm install
-
-# Go back to backend and start main app
+# Set working directory
 WORKDIR /app/backend
 
-# Expose port (backend runs here, usually on 3001)
-EXPOSE 3001
+# Copy backend files
+COPY backend/package*.json ./
+RUN npm install
 
-# Start backend app
-CMD ["node", "app.js"]
+COPY backend ./
+
+# Expose port (Render assigns dynamic port, so we use env)
+EXPOSE 10000
+
+CMD [ "node", "app.js" ]
