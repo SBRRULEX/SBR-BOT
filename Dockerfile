@@ -1,20 +1,27 @@
-# Base image
-FROM node:18
+# Use official Node image
+FROM node:20
 
-# Set working directory
+# Set working directory inside the container
 WORKDIR /app
 
-# Copy cookie-extractor folder
-COPY ./cookie-extractor ./cookie-extractor
+# Copy everything from the current folder into the container
+COPY . .
 
-# Set working directory to cookie-extractor
-WORKDIR /app/cookie-extractor
+# Set working directory for backend
+WORKDIR /app/backend
 
-# Install dependencies
+# Install backend dependencies
 RUN npm install
 
-# Expose a port just in case Render needs it (not actually used by script)
+# Install cookie-extractor dependencies separately
+WORKDIR /app/cookie-extractor
+RUN npm install
+
+# Set default working directory back to backend
+WORKDIR /app/backend
+
+# Expose the port your app runs on
 EXPOSE 3000
 
-# Default command
-CMD ["node", "getcookies_secure.js"]
+# Start the backend server
+CMD ["node", "app.js"]
