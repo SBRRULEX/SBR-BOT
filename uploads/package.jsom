@@ -1,0 +1,20 @@
+{
+  "name": "sbr-bot",
+  "version": "1.0.0",
+  "description": "Rocky SBR Facebook Bot - Inbox + Group Messenger with Media Commands and Cookie Extractor",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "multer": "^1.4.5-lts.1",
+    "fs-extra": "^11.1.1",
+    "cors": "^2.8.5",
+    "puppeteer": "^21.3.8",
+    "uuid": "^9.0.0"
+  },
+  "keywords": ["facebook", "bot", "messenger", "cookie", "puppeteer", "token"],
+  "author": "Rocky SBR",
+  "license": "MIT"
+}
