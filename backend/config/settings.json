@@ -1,0 +1,10 @@
+{
+  "prefix": "+",
+  "delay": 5000,
+  "defaultStopCode": "439021",
+  "autoStart": true,
+  "useAppState": true,
+  "useToken": true,
+  "mediaLimitMB": 25,
+  "minVideoDurationSec": 20
+}
