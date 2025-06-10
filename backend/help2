@@ -1,0 +1,24 @@
+const helpList = [
+  { command: "+help", description: "Command usage instructions with pagination (10 at a time)." },
+  { command: "+help2", description: "List all commands at once." },
+  { command: "+hornymode", description: "Get short, adult video clips or gifs by keywords like 'bro sis'." },
+  { command: "+blackedraw", description: "Fetch random BlackedRaw 20s+ clip/GIF under 25MB." },
+  { command: "+blackedraw jack slayher", description: "Get media of specific BlackedRaw performer." },
+  { command: "!song", description: "Fetch downloadable MP3 of a song by name." },
+  { command: "!video", description: "Fetch downloadable video from a YouTube link." },
+  { command: "!pic", description: "Get images by query." },
+  { command: "!anime", description: "Download anime movie or episodes." },
+  { command: "+stop", description: "Use 6-digit stop code to halt message sending." },
+  { command: "+start", description: "Start the bot (used internally by UI)." },
+  { command: "+cookie", description: "Go to built-in cookie extractor (email/pass + 2FA supported)." }
+];
+
+function getFullHelpList() {
+  let response = "📜 **Full Command List**\n\n";
+  helpList.forEach(cmd => {
+    response += `🔸 ${cmd.command} → ${cmd.description}\n`;
+  });
+  return response;
+}
+
+module.exports = getFullHelpList;
