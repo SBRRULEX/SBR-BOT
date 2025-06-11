@@ -1,18 +1,13 @@
-FROM node:18-alpine
+# सही कॉन्टेक्स्ट सेट करें
+FROM node:18
 
+# सभी आवश्यक फाइल्स कॉपी करें
 WORKDIR /app
+COPY package*.json ./
+COPY . .
 
-COPY backend ./backend
-COPY frontend ./frontend
-COPY backend/package.json ./backend/package.json
-COPY backend/package-lock.json ./backend/package-lock.json
-
-WORKDIR /app/backend
+# डिपेंडेंसी इंस्टॉल करें
 RUN npm install
 
-WORKDIR /app
-
-COPY app.js .
-
-EXPOSE 3000
-CMD ["node", "app.js"]
+# एंट्री पॉइंट सेट करें
+CMD ["node", "index.js"]  # या "app.js" अगर वह आपकी मेन फाइल है
