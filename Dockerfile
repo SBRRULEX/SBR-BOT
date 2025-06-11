@@ -1,26 +1,18 @@
-# Base image
-FROM node:18
+FROM node:18-alpine
 
-# Set working directory
 WORKDIR /app
 
-# Copy backend files
 COPY backend ./backend
 COPY frontend ./frontend
+COPY backend/package.json ./backend/package.json
+COPY backend/package-lock.json ./backend/package-lock.json
 
-# Install backend dependencies
 WORKDIR /app/backend
 RUN npm install
 
-# Build frontend if needed (if it's not static HTML only)
-# WORKDIR /app/frontend
-# RUN npm install && npm run build
+WORKDIR /app
 
-# Move back to main app folder to run backend
-WORKDIR /app/backend
+COPY app.js .
 
-# Expose port
 EXPOSE 3000
-
-# Start backend
-CMD ["npm", "start"]
+CMD ["node", "app.js"]
