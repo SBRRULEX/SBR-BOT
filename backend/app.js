@@ -1,32 +1,32 @@
-const express = require("express");
-const cors = require("cors");
-const path = require("path");
-const cookieParser = require("cookie-parser");
+import express from "express";
+import bodyParser from "body-parser";
+import cors from "cors";
+import cookieParser from "cookie-parser";
+import path from "path";
+import { fileURLToPath } from "url";
+import botHandler from "./backend/botHandler.js";
+import otherRoutes from "./backend/routes/otherRoutes.js";
+import cookieExtractor from "./backend/routes/cookieExtractorRoute.js";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
+const PORT = process.env.PORT || 3000;
 
-// Middleware
 app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 app.use(cookieParser());
 
-// Static frontend
-app.use(express.static(path.join(__dirname, "../frontend")));
-
 // Routes
-const otherRoutes = require("./routes/otherRoutes");
-const cookieExtractorRoute = require("./routes/cookieextractorroute");
-const botHandler = require("./botHandler");
+app.post("/bot", botHandler);
+app.use("/extract", cookieExtractor);
+app.use("/api", otherRoutes);
 
-app.use("/api/other", otherRoutes);
-app.use("/api/extract", cookieExtractorRoute);
-app.post("/api/bot", botHandler);
-
-// Fallback route
+// Serve frontend
+app.use(express.static(path.join(__dirname, "frontend")));
 app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "../frontend/index.html"));
+  res.sendFile(path.join(__dirname, "frontend", "index.html"));
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`✅ Backend running on port ${PORT}`));
+app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
