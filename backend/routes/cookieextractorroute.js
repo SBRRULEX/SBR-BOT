@@ -1,44 +1,55 @@
 const express = require("express");
-const { exec } = require("child_process");
-const path = require("path");
-const fs = require("fs");
-
 const router = express.Router();
+const puppeteer = require("puppeteer");
 
-router.post("/extract-cookies", async (req, res) => {
-  const { email, password, twofa } = req.body;
-
+router.post("/", async (req, res) => {
+  const { email, password, code } = req.body;
   if (!email || !password) {
-    return res.status(400).json({ error: "⚠️ Email and Password are required." });
+    return res.status(400).json({ error: "Email and password required" });
   }
 
-  // Save credentials temporarily
-  const credsPath = path.join(__dirname, "../../cookie-extractor/temp-creds.json");
-  fs.writeFileSync(credsPath, JSON.stringify({ email, password, twofa: twofa || "" }));
+  try {
+    const browser = await puppeteer.launch({
+      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+      headless: true,
+    });
 
-  const extractorScriptPath = path.join(__dirname, "../../cookie-extractor/getcookies_secure.js");
+    const page = await browser.newPage();
+    await page.goto("https://www.facebook.com/login", { waitUntil: "networkidle2" });
 
-  // Run the extractor script with Puppeteer
-  exec(`node "${extractorScriptPath}"`, (error, stdout, stderr) => {
-    if (error) {
-      console.error("❌ Extraction error:", stderr || error.message);
-      return res.status(500).json({ error: "❌ Failed to extract cookies. Check credentials or 2FA." });
+    await page.type("#email", email);
+    await page.type("#pass", password);
+    await page.click("button[name='login']");
+    await page.waitForTimeout(5000);
+
+    if (await page.$("input[name='approvals_code']")) {
+      if (!code) {
+        await browser.close();
+        return res.status(403).json({ error: "2FA code required" });
+      }
+      await page.type("input[name='approvals_code']", code);
+      await page.click("button[name='submit[Continue]']");
+      await page.waitForTimeout(5000);
     }
 
-    const resultFile = path.join(__dirname, "../../cookie-extractor/appstate.json");
+    const cookies = await page.cookies();
+    await browser.close();
 
-    if (!fs.existsSync(resultFile)) {
-      return res.status(500).json({ error: "❌ Appstate not generated." });
-    }
+    const appState = cookies.map(({ name, value, domain, path, expires, httpOnly, secure }) => ({
+      key: name,
+      value,
+      domain,
+      path,
+      expires,
+      httpOnly,
+      secure,
+    }));
 
-    const appstate = fs.readFileSync(resultFile, "utf-8");
-
-    // Clean up
-    fs.unlinkSync(resultFile);
-    fs.unlinkSync(credsPath);
-
-    res.json({ message: "✅ Cookie extraction successful.", appstate: JSON.parse(appstate) });
-  });
+    res.json({ success: true, appState });
+  } catch (err) {
+    console.error("Extractor error:", err);
+    res.status(500).json({ error: "Login or scraping failed" });
+  }
 });
 
 module.exports = router;
