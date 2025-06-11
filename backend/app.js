@@ -1,36 +1,36 @@
 const express = require('express');
 const path = require('path');
 const cors = require('cors');
-const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 
+const app = express();
+
+// Middleware
+app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
+
+// Static frontend (adjust this path if needed)
+app.use(express.static(path.join(__dirname, '../frontend')));
+
+// Routes
 const otherRoutes = require('./routes/otherRoutes');
 const cookieExtractorRoute = require('./routes/cookieextractorroute');
 const botHandler = require('./botHandler');
 
-const app = express();
-
-// Middlewares
-app.use(cors());
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(cookieParser());
-
-// Routes
+// Apply Routes
 app.use('/api', otherRoutes);
-app.use('/api/extract', cookieExtractorRoute);
-app.use('/api/bot', botHandler);
+app.use('/cookie-extractor', cookieExtractorRoute);
+app.use('/bot', botHandler);
 
-// Serve frontend (static HTML)
-const frontendPath = path.join(__dirname, '../frontend');
-app.use(express.static(frontendPath));
-
+// Fallback for SPA
 app.get('*', (req, res) => {
-  res.sendFile(path.join(frontendPath, 'index.html'));
+  res.sendFile(path.join(__dirname, '../frontend/index.html'));
 });
 
-// Start the server
-const PORT = process.env.PORT || 10000;
+// Port setup
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`✅ Server running on port ${PORT}`);
+  console.log(`✅ Backend server running on port ${PORT}`);
 });
