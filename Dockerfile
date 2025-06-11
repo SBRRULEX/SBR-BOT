@@ -1,23 +1,15 @@
 # Base image
-FROM node:20
+FROM node:18
 
 # Set working directory
 WORKDIR /app
 
-# Copy backend code
-COPY backend ./backend
+# Copy all files
+COPY . .
 
-# Copy cookie-extractor code
-COPY cookie-extractor ./cookie-extractor
-
-# Set working directory to backend
+# Install dependencies from backend
 WORKDIR /app/backend
-
-# Install backend dependencies
 RUN npm install
 
-# Expose port
-EXPOSE 3000
-
-# Start backend
+# Use app.js directly
 CMD ["node", "app.js"]
