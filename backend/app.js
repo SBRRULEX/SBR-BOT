@@ -1,30 +1,33 @@
-const express = require('express');
-const cors = require('cors');
-const path = require('path');
-const cookieParser = require('cookie-parser');
-const extractorRoute = require('./routes/cookieextractorroute');
+const express = require("express");
+const path = require("path");
+const cors = require("cors");
+const bodyParser = require("body-parser");
+const cookieParser = require("cookie-parser");
 
 const app = express();
+const PORT = process.env.PORT || 3000;
 
-// Middleware
+// Middlewares
 app.use(cors());
-app.use(express.json());
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
-app.use(express.urlencoded({ extended: true }));
 
-// Serve frontend from public folder if needed
-app.use(express.static(path.join(__dirname, '../public')));
+// Serve frontend
+app.use(express.static(path.join(__dirname, "../frontend")));
 
-// API Route for cookie extractor
-app.use('/api/extract', extractorRoute);
-
-// Default route
-app.get('/', (req, res) => {
-  res.send('SBR-BOT Backend Running ✅');
+// Routes
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "../frontend/index.html"));
 });
 
-// Port setup
-const PORT = process.env.PORT || 3000;
+const cookieExtractorRoute = require("./routes/cookieextractorroute");
+app.use("/api/extractor", cookieExtractorRoute);
+
+const otherRoutes = require("./routes/otherRoutes");
+app.use("/api", otherRoutes);
+
+// Start server
 app.listen(PORT, () => {
-  console.log(`✅ Server running on port ${PORT}`);
+  console.log(`✅ SBR-BOT Backend Running on PORT ${PORT}`);
 });
