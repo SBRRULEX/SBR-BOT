@@ -1,58 +1,41 @@
-// backend/botHandler.js
-
-const fs = require("fs");
-const path = require("path");
-const readlineSync = require("readline-sync");
-const { Facebook } = require("fb-chat-api");
+const login = require("fb-chat-api");
 
 module.exports = async (req, res) => {
+  const { appState, uid, message, delay } = req.body;
+
+  if (!appState || !uid || !message) {
+    return res.status(400).json({ error: "Missing appState, uid, or message" });
+  }
+
   try {
-    const { appState, uid, message, delay } = req.body;
-
-    if (!appState || !uid || !message) {
-      return res.status(400).json({ error: "Missing appState, uid, or message" });
-    }
-
-    const loginOptions = {
-      appState: JSON.parse(appState),
-      forceLogin: true,
-      logLevel: "silent",
-    };
-
-    Facebook(loginOptions, async (err, api) => {
+    login({ appState }, (err, api) => {
       if (err) {
-        console.error("FB Login Error:", err);
-        return res.status(500).json({ error: "Login failed" });
+        console.error("Login error:", err);
+        return res.status(500).json({ error: "Facebook login failed", details: err });
       }
 
-      api.setOptions({ listenEvents: true });
+      const sendWithDelay = (msgs, index = 0) => {
+        if (index >= msgs.length) return;
 
-      const messageData = {
-        body: message
+        api.sendMessage(msgs[index], uid, (err) => {
+          const timestamp = new Date().toLocaleTimeString();
+
+          if (err) {
+            console.error(`❌ Failed at ${timestamp}:`, err);
+          } else {
+            console.log(`✅ SBR SUCCESSFULLY SEND at ${timestamp}:`, msgs[index]);
+          }
+
+          setTimeout(() => sendWithDelay(msgs, index + 1), delay || 2000);
+        });
       };
 
-      const delayMs = parseInt(delay) || 2000;
-
-      const uids = Array.isArray(uid) ? uid : [uid];
-
-      for (let user of uids) {
-        await new Promise(resolve => {
-          api.sendMessage(messageData, user, (err) => {
-            if (err) {
-              console.error(`Failed to send message to ${user}`, err);
-            } else {
-              console.log(`[SBR SUCCESSFULLY SEND] To: ${user} - ${message}`);
-            }
-            setTimeout(resolve, delayMs);
-          });
-        });
-      }
-
-      return res.status(200).json({ status: "Messages sent successfully." });
+      const messagesArray = Array.isArray(message) ? message : [message];
+      sendWithDelay(messagesArray);
+      res.status(200).json({ status: "Bot started sending messages" });
     });
-
   } catch (error) {
-    console.error("Bot Handler Error:", error);
-    return res.status(500).json({ error: "Something went wrong." });
+    console.error("Unhandled bot error:", error);
+    res.status(500).json({ error: "Bot crashed", details: error });
   }
 };
