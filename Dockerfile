@@ -1,18 +1,23 @@
 # Base image
-FROM node:18
+FROM node:20
 
-# Set working directory inside container
+# Set working directory
+WORKDIR /app
+
+# Copy backend code
+COPY backend ./backend
+
+# Copy cookie-extractor code
+COPY cookie-extractor ./cookie-extractor
+
+# Set working directory to backend
 WORKDIR /app/backend
 
-# Copy backend package.json and install dependencies
-COPY backend/package*.json ./
+# Install backend dependencies
 RUN npm install
-
-# Copy rest of backend files
-COPY backend ./
 
 # Expose port
 EXPOSE 3000
 
-# Start the backend
-CMD ["node", "index.js"]
+# Start backend
+CMD ["node", "app.js"]
