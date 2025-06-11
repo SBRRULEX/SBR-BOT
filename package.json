@@ -1,17 +1,16 @@
 {
-  "name": "sbr-bot-backend",
+  "name": "sbr-bot",
   "version": "1.0.0",
   "main": "app.js",
-  "type": "module",
   "scripts": {
     "start": "node app.js"
   },
   "dependencies": {
+    "cookie-parser": "^1.4.6",
     "express": "^4.18.2",
-    "body-parser": "^1.20.2",
-    "cors": "^2.8.5",
-    "multer": "^1.4.5-lts.1",
     "fb-chat-api": "^1.4.0",
-    "cookie-parser": "^1.4.6"
+    "puppeteer": "^22.8.2",
+    "puppeteer-extra": "^3.3.4",
+    "puppeteer-extra-plugin-stealth": "^2.11.1"
   }
 }
