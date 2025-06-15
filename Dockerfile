@@ -1,16 +1,17 @@
-FROM node:18
+# Use official Node image
+FROM node:20
 
-# 1. WORKDIR पहले सेट करें
+# Create app directory
 WORKDIR /app
 
-# 2. पहले package.json और package-lock.json कॉपी करें
-COPY package*.json ./
-
-# 3. बाकी फाइल्स कॉपी करें
+# Copy everything
 COPY . .
 
-# 4. डिपेंडेंसी इंस्टॉल करें
+# Install dependencies
 RUN npm install
 
-# 5. एप्लिकेशन रन करें
-CMD ["node", "index.js"]
+# Expose port
+EXPOSE 3000
+
+# Start the server
+CMD ["npm", "start"]
