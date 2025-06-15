@@ -1,17 +1,18 @@
-# Use official Node image
-FROM node:20
+# Use Node base image
+FROM node:18
 
-# Create app directory
+# Set working directory
 WORKDIR /app
 
-# Copy everything
-COPY . .
-
-# Install dependencies
+# Copy package files and install
+COPY package.json .
 RUN npm install
+
+# Copy the rest of the app
+COPY . .
 
 # Expose port
 EXPOSE 3000
 
-# Start the server
-CMD ["npm", "start"]
+# Start app
+CMD ["node", "app.js"]
