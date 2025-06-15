@@ -1,32 +1,33 @@
-import express from "express";
-import bodyParser from "body-parser";
-import cors from "cors";
-import cookieParser from "cookie-parser";
-import path from "path";
-import { fileURLToPath } from "url";
-import botHandler from "./backend/botHandler.js";
-import otherRoutes from "./backend/routes/otherRoutes.js";
-import cookieExtractor from "./backend/routes/cookieExtractorRoute.js";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
+// app.js (root)
+const express = require('express');
+const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(cors());
-app.use(bodyParser.json());
-app.use(cookieParser());
+const cookieExtractorRoute = require('./backend/routes/cookieextractorroute');
+const messageRoute = require('./backend/routes/messageRoute');
+const sendRoute = require('./backend/routes/sendRoute');
+const otherRoutes = require('./backend/routes/otherRoutes');
+const botHandler = require('./botHandler');
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Static frontend from backend/public
+app.use(express.static(path.join(__dirname, 'backend/public')));
 
 // Routes
-app.post("/bot", botHandler);
-app.use("/extract", cookieExtractor);
-app.use("/api", otherRoutes);
+app.use('/cookie-extractor', cookieExtractorRoute);
+app.use('/message', messageRoute);
+app.use('/send', sendRoute);
+app.use('/other', otherRoutes);
+app.use('/bot', botHandler);
 
-// Serve frontend
-app.use(express.static(path.join(__dirname, "frontend")));
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "frontend", "index.html"));
+// Fallback: index.html
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'backend/public/index.html'));
 });
 
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+app.listen(PORT, () => {
+  console.log(`✅ Server running on http://localhost:${PORT}`);
+});
