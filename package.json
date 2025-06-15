@@ -1,16 +1,19 @@
 {
   "name": "sbr-bot",
   "version": "1.0.0",
+  "description": "Rocky SBR Bot",
   "main": "app.js",
   "scripts": {
     "start": "node app.js"
   },
   "dependencies": {
-    "cookie-parser": "^1.4.6",
-    "express": "^4.18.2",
-    "fb-chat-api": "^1.4.0",
+    "express": "^4.18.4",
     "puppeteer": "^22.8.2",
     "puppeteer-extra": "^3.3.4",
-    "puppeteer-extra-plugin-stealth": "^2.11.1"
+    "puppeteer-extra-plugin-stealth": "^2.11.1",
+    "readline-sync": "^1.4.10",
+    "cookie-parser": "^1.4.6",
+    "body-parser": "^1.20.2",
+    "multer": "^1.4.5-lts.1"
   }
 }
