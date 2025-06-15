@@ -1,33 +1,43 @@
-// app.js (root)
+// app.js (in root)
+
 const express = require('express');
 const path = require('path');
+const cookieParser = require('cookie-parser');
+const bodyParser = require('body-parser');
+const cors = require('cors');
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-const cookieExtractorRoute = require('./backend/routes/cookieextractorroute');
-const messageRoute = require('./backend/routes/messageRoute');
-const sendRoute = require('./backend/routes/sendRoute');
-const otherRoutes = require('./backend/routes/otherRoutes');
-const botHandler = require('./botHandler');
+// Middlewares
+app.use(cors());
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(cookieParser());
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-// Static frontend from backend/public
-app.use(express.static(path.join(__dirname, 'backend/public')));
+// Static frontend
+app.use(express.static(path.join(__dirname, 'frontend')));
 
 // Routes
-app.use('/cookie-extractor', cookieExtractorRoute);
-app.use('/message', messageRoute);
-app.use('/send', sendRoute);
-app.use('/other', otherRoutes);
-app.use('/bot', botHandler);
+const messageRoute = require('./backend/routes/messageRoute');
+const sendRoute = require('./backend/routes/sendRoute');
+const cookieExtractorRoute = require('./backend/routes/cookieExtractorRoute');
+const otherRoutes = require('./backend/routes/otherRoutes');
+const botHandler = require('./backend/botHandler');
 
-// Fallback: index.html
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'backend/public/index.html'));
+// Route Bindings
+app.use('/api/message', messageRoute);
+app.use('/api/send', sendRoute);
+app.use('/api/cookie-extractor', cookieExtractorRoute);
+app.use('/api/other', otherRoutes);
+app.use('/api/bot', botHandler);
+
+// Serve index.html for frontend
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'frontend', 'index.html'));
 });
 
+// Start server
 app.listen(PORT, () => {
-  console.log(`✅ Server running on http://localhost:${PORT}`);
+  console.log(`✅ Server is running on port ${PORT}`);
 });
