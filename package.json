@@ -1,14 +1,21 @@
 {
   "name": "sbr-bot",
   "version": "1.0.0",
+  "description": "Facebook Bot for Messaging and Cookie Extraction",
   "main": "app.js",
   "scripts": {
     "start": "node app.js"
   },
   "dependencies": {
+    "express": "^4.18.2",
     "body-parser": "^1.20.2",
-    "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
-    "express": "^4.18.2"
+    "multer": "^1.4.5-lts.1",
+    "puppeteer": "^22.8.2",
+    "puppeteer-extra": "^3.3.4",
+    "puppeteer-extra-plugin-stealth": "^2.11.1",
+    "readline-sync": "^1.4.10",
+    "cookie-parser": "^1.4.6",
+    "fs-extra": "^11.2.0"
   }
 }
