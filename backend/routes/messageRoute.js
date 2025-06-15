@@ -1,10 +1,13 @@
+// backend/routes/messageRoute.js
+
 const express = require('express');
 const router = express.Router();
+
+// Message controller ko require karte hain
 const messageController = require('../core/messageController');
-const verifyLogin = require('../middleware/verifyLogin');
 
-router.post('/send', verifyLogin, messageController.sendMessage);
-router.post('/start-bot', verifyLogin, messageController.startBot);
-router.post('/stop-bot', verifyLogin, messageController.stopBot);
+// POST route: /send-message
+router.post('/send-message', messageController);
 
+// Export router
 module.exports = router;
